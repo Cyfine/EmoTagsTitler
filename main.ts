@@ -11,62 +11,154 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 }
 
 
-function addTagsEmojiToTitle(file:TFile){
-	let note = this.app.workspace.getActiveFile();
-	// Check if the changed file is the current note
-	if (file.path === note.path) {
-		// Get the tags of the current note
-		let tags = this.app.metadataCache.getFileCache(note).tags;
-		// Get the current note title
-		let noteTitle = note.basename;
-		// Check if there are any tags
-		if (tags) {
+function addTagsEmojiToTitle(file: TFile) {
+	// Get the tags of the current note
+	let tags = this.app.metadataCache.getFileCache(file).tags;
+	// Get the current note title
+	let noteTitle = file.basename;
+	// Check if there are any tags
+	if (tags) {
 
-			// Loop through the tags
-			let emojis: string[] = []
-			for (let tag of tags) {
-				// Get the tag name
-				let tagName = tag.tag;
-				// Check if the tag name contains an emoji
-				if (/(?!#)(\p{Emoji})/gu.test(tagName)) {
-					// Get the emoji from the tag name	
-					let tagEmojis = Array.from(tagName.match(/(?!#)(\p{Emoji})/gu) ?? []);
-					tagEmojis = tagEmojis.filter(element => !emojis.includes(element))
-					
-					emojis = [...emojis, ...tagEmojis]
+		// Loop through the tags
+		let emojis: string[] = []
+		for (let tag of tags) {
+			// Get the tag name
+			let tagName = tag.tag;
+			// Check if the tag name contains an emoji
+			if (/(?!#)(\p{Emoji})/gu.test(tagName)) {
+				// Get the emoji from the tag name	
+				let tagEmojis = Array.from(tagName.match(/(?!#)(\p{Emoji})/gu) ?? []);
+				tagEmojis = tagEmojis.filter(element => !emojis.includes(element))
 
-				}
+				emojis = [...emojis, ...tagEmojis]
+
 			}
-
-			let noteTitleWithoutEmoji = noteTitle.replace(/^(\p{Emoji}(\p{Variation_Selector})?)+\s*/gu, '');
-			
-			if(emojis.length > 0){ 
-				 let emojiHeader = emojis?.join('') ?? ''
-				 let newNoteTitle =  emojiHeader + ' ' + noteTitleWithoutEmoji; 
-				 this.app.fileManager.renameFile(note, newNoteTitle + '.md');
-			}
-
-		} else {
-			// If there are no tags, remove all emojis from the note title
-			// Replace all emojis with an empty string
-			let newNoteTitle = noteTitle.replace(/\p{Emoji}/gu, '');
-			// Trim any extra spaces
-			newNoteTitle = newNoteTitle.trim();
-			// Rename the note file with the new title
-			this.app.fileManager.renameFile(note, newNoteTitle + '.md');
 		}
+
+		let noteTitleWithoutEmoji = noteTitle.replace(/^(\p{Emoji}(\p{Variation_Selector})?)+\s*/gu, '');
+
+		if (emojis.length > 0) {
+			let emojiHeader = emojis?.join('') ?? ''
+			let newNoteTitle = emojiHeader + ' ' + noteTitleWithoutEmoji;
+			this.app.fileManager.renameFile(file, newNoteTitle + '.md');
+		}
+
+	} else {
+		// If there are no tags, remove all emojis from the note title
+		// Replace all emojis with an empty string
+		let newNoteTitle = noteTitle.replace(/\p{Emoji}/gu, '');
+		// Trim any extra spaces
+		newNoteTitle = newNoteTitle.trim();
+		// Rename the note file with the new title
+		this.app.fileManager.renameFile(file, newNoteTitle + '.md');
 	}
 }
 
 
-export default class EmojiPlugin extends Plugin {
+function addEmojisToAllNotes() {
+	// Get all the markdown files in the vault
+	let files = this.app.vault.getMarkdownFiles();
+	// Loop through the files
+	for (let file of files) {
+		// Call the addTagsEmojiToTitle function on each file
+		addTagsEmojiToTitle(file);
+	}
+}
+
+function removeTagsEmojiFromTitle(note: TFile) {
+	
+	// Check if the changed file is the current note
+	
+	  // Get the tags of the current note
+	  let tags = this.app.metadataCache.getFileCache(note).tags;
+	  // Get the current note title
+	  let noteTitle = note.basename;
+	  // Check if there are any tags
+	  if (tags) {
+		// Loop through the tags
+		for (let tag of tags) {
+		  // Get the tag name
+		  let tagName = tag.tag;
+		  // Check if the tag name contains an emoji
+		  if (/(?!#)(\p{Emoji})/gu.test(tagName)) {
+			// Get the emoji from the tag name	
+			let tagEmojis = Array.from(tagName.match(/(?!#)(\p{Emoji})/gu) ?? []);
+			// Loop through the tag emojis
+			for (let emoji of tagEmojis) {
+			  // Replace the emoji in the note title with an empty string
+			  noteTitle = noteTitle.replace(emoji, '');
+			}
+		  }
+		}
+		// Trim any extra spaces
+		noteTitle = noteTitle.trim();
+		// Rename the note file with the new title
+		this.app.fileManager.renameFile(note, noteTitle + '.md');
+	  }
+	}
+  
+  
+  function removeEmojisFromAllNotes() {
+	// Get all the markdown files in the vault
+	let files = this.app.vault.getMarkdownFiles();
+	// Loop through the files
+	for (let file of files) {
+	  // Call the removeTagsEmojiFromTitle function on each file
+	  removeTagsEmojiFromTitle(file);
+	}
+  }
+  
+
+
+export default class EmoTagsTitler extends Plugin {
 	// Define a method to run when your plugin is loaded
 	async onload() {
 		// Register a hook to listen for changes in the metadata of notes
 		this.registerEvent(
 			this.app.metadataCache.on('changed', addTagsEmojiToTitle.bind(this))
 		);
+
+		// Wait until the metadata cache is resolved, add a tags to all notes
+		// await this.app.metadataCache.on('resolved', () => {
+		// 	// Call the addEmojisToAllNotes function
+		// 	addEmojisToAllNotes();
+		// });
+
+		// Add a command to the plugin
+		this.addCommand({
+			id: 'add-emojis-to-all-notes',
+			name: 'Add emojis to title for all notes with emoji tags',
+			callback: () => {
+				// Call the addEmojisToAllNotes function
+				addEmojisToAllNotes();
+			},
+			// Optional hotkeys for the command
+			hotkeys: [
+				{
+					modifiers: ['Mod', 'Shift'],
+					key: 'E',
+				},
+			],
+		});
+
+
+		this.addCommand({
+			id: 'remove-emojis-from-all-notes',
+			name: 'Remove emojis from all notes\' titles',
+			callback: () => {
+			  // Call the removeEmojisFromAllNotes function
+			  removeEmojisFromAllNotes();
+			},
+			hotkeys: [
+			  {
+				modifiers: ['Mod', 'Shift'],
+				key: 'R',
+			  },
+			],
+		  });
 	}
+
+
 }
 
 
@@ -87,9 +179,9 @@ class SampleModal extends Modal {
 }
 
 class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+	plugin: EmoTagsTitler;
 
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: EmoTagsTitler) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
