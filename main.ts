@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
+import {App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile} from 'obsidian';
 import {join} from 'path';
 
 // Remember to rename these classes and interfaces!
@@ -17,22 +17,23 @@ const emojiReplaceRegex = /^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)+\s*/gu
 
 function addTagsEmojiToTitle(file: TFile) {
 	// Get the tags of the current note
-	let tags = this.app.metadataCache.getFileCache(file).tags;
-	let dir = file.parent.path
+	const tags = this.app.metadataCache.getFileCache(file).tags;
+	if (file.parent == null) return;
+	const dir = file.parent.path
 	// Get the current note title
-	let noteTitle = file.basename;
+	const noteTitle = file.basename;
 	// Check if there are any tags
 	if (tags) {
 
 		// Loop through the tags
 		let emojis: string[] = []
-		for (let tag of tags) {
+		for (const tag of tags) {
 			// Get the tag name
-			let tagName = tag.tag;
+			const tagName = tag.tag;
 			// Check if the tag name contains an emoji
 			if (emojiDetectRegex.test(tagName)) {
 				// Get the emoji from the tag name	
-				let tagEmojis = Array.from(tagName.match(emojiDetectRegex) ?? []);
+				let tagEmojis: string[] = Array.from(tagName.match(emojiDetectRegex) ?? []);
 				tagEmojis = tagEmojis.filter(element => !emojis.includes(element))
 
 				emojis = [...emojis, ...tagEmojis]
@@ -40,10 +41,10 @@ function addTagsEmojiToTitle(file: TFile) {
 			}
 		}
 
-		let noteTitleWithoutEmoji = noteTitle.replace(emojiReplaceRegex, "")
+		const noteTitleWithoutEmoji = noteTitle.replace(emojiReplaceRegex, "")
 		if (emojis.length > 0) {
-			let emojiHeader = emojis?.join('') ?? ''
-			let newNoteTitle = emojiHeader + ' ' + noteTitleWithoutEmoji;
+			const emojiHeader = emojis?.join('') ?? ''
+			const newNoteTitle = emojiHeader + ' ' + noteTitleWithoutEmoji;
 			this.app.fileManager.renameFile(file, join(dir, newNoteTitle + '.md'));
 		}
 
@@ -61,57 +62,57 @@ function addTagsEmojiToTitle(file: TFile) {
 
 function addEmojisToAllNotes() {
 	// Get all the markdown files in the vault
-	let files = this.app.vault.getMarkdownFiles();
+	const files = this.app.vault.getMarkdownFiles();
 	// Loop through the files
-	for (let file of files) {
+	for (const file of files) {
 		// Call the addTagsEmojiToTitle function on each file
 		addTagsEmojiToTitle(file);
 	}
 }
 
 function removeTagsEmojiFromTitle(note: TFile) {
-	
+
 	// Check if the changed file is the current note
-	
-	  // Get the tags of the current note
-	  let tags = this.app.metadataCache.getFileCache(note).tags;
-	  let dir = note.parent.path
-	  let noteTitle = note.basename;
-	  // Check if there are any tags
-	  if (tags) {
+
+	// Get the tags of the current note
+	const tags = this.app.metadataCache.getFileCache(note).tags;
+	if (note.parent == null) return;
+	const dir = note.parent.path
+	let noteTitle = note.basename;
+	// Check if there are any tags
+	if (tags) {
 		// Loop through the tags
-		for (let tag of tags) {
-		  // Get the tag name
-		  let tagName = tag.tag;
-		  // Check if the tag name contains an emoji
-		  if (emojiDetectRegex.test(tagName)) {
-			// Get the emoji from the tag name	
-			let tagEmojis = Array.from(tagName.match(emojiDetectRegex) ?? []);
-			// Loop through the tag emojis
-			for (let emoji of tagEmojis) {
-			  // Replace the emoji in the note title with an empty string
-			  noteTitle = noteTitle.replace(emoji, '');
+		for (const tag of tags) {
+			// Get the tag name
+			const tagName = tag.tag;
+			// Check if the tag name contains an emoji
+			if (emojiDetectRegex.test(tagName)) {
+				// Get the emoji from the tag name
+				const tagEmojis: string[] = Array.from(tagName.match(emojiDetectRegex) ?? []);
+				// Loop through the tag emojis
+				for (const emoji of tagEmojis) {
+					// Replace the emoji in the note title with an empty string
+					noteTitle = noteTitle.replace(emoji, '');
+				}
 			}
-		  }
 		}
 		// Trim any extra spaces
 		noteTitle = noteTitle.trim();
 		// Rename the note file with the new title
 		this.app.fileManager.renameFile(note, join(dir, noteTitle + '.md'))
-	  }
 	}
-  
-  
-  function removeEmojisFromAllNotes() {
+}
+
+
+function removeEmojisFromAllNotes() {
 	// Get all the markdown files in the vault
-	let files = this.app.vault.getMarkdownFiles();
+	const files = this.app.vault.getMarkdownFiles();
 	// Loop through the files
-	for (let file of files) {
-	  // Call the removeTagsEmojiFromTitle function on each file
-	  removeTagsEmojiFromTitle(file);
+	for (const file of files) {
+		// Call the removeTagsEmojiFromTitle function on each file
+		removeTagsEmojiFromTitle(file);
 	}
-  }
-  
+}
 
 
 export default class EmoTagsTitler extends Plugin {
@@ -150,16 +151,16 @@ export default class EmoTagsTitler extends Plugin {
 			id: 'remove-emojis-from-all-notes',
 			name: 'Remove emojis from the titles of all notes',
 			callback: () => {
-			  // Call the removeEmojisFromAllNotes function
-			  removeEmojisFromAllNotes();
+				// Call the removeEmojisFromAllNotes function
+				removeEmojisFromAllNotes();
 			},
 			hotkeys: [
-			  {
-				modifiers: ['Mod', 'Shift'],
-				key: 'R',
-			  },
+				{
+					modifiers: ['Mod', 'Shift'],
+					key: 'R',
+				},
 			],
-		  });
+		});
 	}
 
 
@@ -172,12 +173,12 @@ class SampleModal extends Modal {
 	}
 
 	onOpen() {
-		const { contentEl } = this;
+		const {contentEl} = this;
 		contentEl.setText('Woah!');
 	}
 
 	onClose() {
-		const { contentEl } = this;
+		const {contentEl} = this;
 		contentEl.empty();
 	}
 }
@@ -191,11 +192,11 @@ class SampleSettingTab extends PluginSettingTab {
 	}
 
 	display(): void {
-		const { containerEl } = this;
+		const {containerEl} = this;
 
 		containerEl.empty();
 
-		containerEl.createEl('h2', { text: 'Settings for my awesome plugin.' });
+		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
 
 		new Setting(containerEl)
 			.setName('Setting #1')
