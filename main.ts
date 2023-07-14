@@ -127,7 +127,7 @@ export default class EmoTagsTitler extends Plugin {
 		// Add a command to the plugin
 		this.addCommand({
 			id: 'add-emojis-to-all-notes',
-			name: 'Add emojis to title for all notes with emoji tags',
+			name: 'Add emojis to the titles of all notes that have emoji tags',
 			callback: () => {
 				// Call the addEmojisToAllNotes function
 				addEmojisToAllNotes();
@@ -144,7 +144,7 @@ export default class EmoTagsTitler extends Plugin {
 
 		this.addCommand({
 			id: 'remove-emojis-from-all-notes',
-			name: 'Remove emojis from all notes\' titles',
+			name: 'Remove emojis from the titles of all notes',
 			callback: () => {
 			  // Call the removeEmojisFromAllNotes function
 			  removeEmojisFromAllNotes();
