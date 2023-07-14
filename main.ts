@@ -12,6 +12,9 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 }
 
 
+const emojiDetectRegex = /(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/gu
+const emojiReplaceRegex = /^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)+\s*/gu
+
 function addTagsEmojiToTitle(file: TFile) {
 	// Get the tags of the current note
 	let tags = this.app.metadataCache.getFileCache(file).tags;
@@ -27,9 +30,9 @@ function addTagsEmojiToTitle(file: TFile) {
 			// Get the tag name
 			let tagName = tag.tag;
 			// Check if the tag name contains an emoji
-			if (/(?!#)(\p{Emoji_Presentation})/gu.test(tagName)) {
+			if (emojiDetectRegex.test(tagName)) {
 				// Get the emoji from the tag name	
-				let tagEmojis = Array.from(tagName.match(/(?!#)(\p{Emoji_Presentation})/gu) ?? []);
+				let tagEmojis = Array.from(tagName.match(emojiDetectRegex) ?? []);
 				tagEmojis = tagEmojis.filter(element => !emojis.includes(element))
 
 				emojis = [...emojis, ...tagEmojis]
@@ -37,8 +40,7 @@ function addTagsEmojiToTitle(file: TFile) {
 			}
 		}
 
-		let noteTitleWithoutEmoji = noteTitle.replace(/^(\p{Emoji_Presentation}(\p{Variation_Selector})?)+\s*/gu, '');
-
+		let noteTitleWithoutEmoji = noteTitle.replace(emojiReplaceRegex, "")
 		if (emojis.length > 0) {
 			let emojiHeader = emojis?.join('') ?? ''
 			let newNoteTitle = emojiHeader + ' ' + noteTitleWithoutEmoji;
@@ -48,7 +50,7 @@ function addTagsEmojiToTitle(file: TFile) {
 	} else {
 		// If there are no tags, remove all emojis from the note title
 		// Replace all emojis with an empty string
-		let newNoteTitle = noteTitle.replace(/\p{Emoji_Presentation}/gu, '');
+		let newNoteTitle = noteTitle.replace(emojiDetectRegex, '');
 		// Trim any extra spaces
 		newNoteTitle = newNoteTitle.trim();
 		// Rename the note file with the new title
@@ -82,9 +84,9 @@ function removeTagsEmojiFromTitle(note: TFile) {
 		  // Get the tag name
 		  let tagName = tag.tag;
 		  // Check if the tag name contains an emoji
-		  if (/(?!#)(\p{Emoji_Presentation})/gu.test(tagName)) {
+		  if (emojiDetectRegex.test(tagName)) {
 			// Get the emoji from the tag name	
-			let tagEmojis = Array.from(tagName.match(/(?!#)(\p{Emoji_Presentation})/gu) ?? []);
+			let tagEmojis = Array.from(tagName.match(emojiDetectRegex) ?? []);
 			// Loop through the tag emojis
 			for (let emoji of tagEmojis) {
 			  // Replace the emoji in the note title with an empty string
