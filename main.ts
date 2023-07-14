@@ -1,4 +1,5 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
+import {join} from 'path';
 
 // Remember to rename these classes and interfaces!
 
@@ -14,6 +15,7 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 function addTagsEmojiToTitle(file: TFile) {
 	// Get the tags of the current note
 	let tags = this.app.metadataCache.getFileCache(file).tags;
+	let dir = file.parent.path
 	// Get the current note title
 	let noteTitle = file.basename;
 	// Check if there are any tags
@@ -25,9 +27,9 @@ function addTagsEmojiToTitle(file: TFile) {
 			// Get the tag name
 			let tagName = tag.tag;
 			// Check if the tag name contains an emoji
-			if (/(?!#)(\p{Emoji})/gu.test(tagName)) {
+			if (/(?!#)(\p{Emoji_Presentation})/gu.test(tagName)) {
 				// Get the emoji from the tag name	
-				let tagEmojis = Array.from(tagName.match(/(?!#)(\p{Emoji})/gu) ?? []);
+				let tagEmojis = Array.from(tagName.match(/(?!#)(\p{Emoji_Presentation})/gu) ?? []);
 				tagEmojis = tagEmojis.filter(element => !emojis.includes(element))
 
 				emojis = [...emojis, ...tagEmojis]
@@ -35,22 +37,22 @@ function addTagsEmojiToTitle(file: TFile) {
 			}
 		}
 
-		let noteTitleWithoutEmoji = noteTitle.replace(/^(\p{Emoji}(\p{Variation_Selector})?)+\s*/gu, '');
+		let noteTitleWithoutEmoji = noteTitle.replace(/^(\p{Emoji_Presentation}(\p{Variation_Selector})?)+\s*/gu, '');
 
 		if (emojis.length > 0) {
 			let emojiHeader = emojis?.join('') ?? ''
 			let newNoteTitle = emojiHeader + ' ' + noteTitleWithoutEmoji;
-			this.app.fileManager.renameFile(file, newNoteTitle + '.md');
+			this.app.fileManager.renameFile(file, join(dir, newNoteTitle + '.md'));
 		}
 
 	} else {
 		// If there are no tags, remove all emojis from the note title
 		// Replace all emojis with an empty string
-		let newNoteTitle = noteTitle.replace(/\p{Emoji}/gu, '');
+		let newNoteTitle = noteTitle.replace(/\p{Emoji_Presentation}/gu, '');
 		// Trim any extra spaces
 		newNoteTitle = newNoteTitle.trim();
 		// Rename the note file with the new title
-		this.app.fileManager.renameFile(file, newNoteTitle + '.md');
+		this.app.fileManager.renameFile(file, join(dir, newNoteTitle + '.md'));
 	}
 }
 
@@ -71,7 +73,7 @@ function removeTagsEmojiFromTitle(note: TFile) {
 	
 	  // Get the tags of the current note
 	  let tags = this.app.metadataCache.getFileCache(note).tags;
-	  // Get the current note title
+	  let dir = note.parent.path
 	  let noteTitle = note.basename;
 	  // Check if there are any tags
 	  if (tags) {
@@ -80,9 +82,9 @@ function removeTagsEmojiFromTitle(note: TFile) {
 		  // Get the tag name
 		  let tagName = tag.tag;
 		  // Check if the tag name contains an emoji
-		  if (/(?!#)(\p{Emoji})/gu.test(tagName)) {
+		  if (/(?!#)(\p{Emoji_Presentation})/gu.test(tagName)) {
 			// Get the emoji from the tag name	
-			let tagEmojis = Array.from(tagName.match(/(?!#)(\p{Emoji})/gu) ?? []);
+			let tagEmojis = Array.from(tagName.match(/(?!#)(\p{Emoji_Presentation})/gu) ?? []);
 			// Loop through the tag emojis
 			for (let emoji of tagEmojis) {
 			  // Replace the emoji in the note title with an empty string
@@ -93,7 +95,7 @@ function removeTagsEmojiFromTitle(note: TFile) {
 		// Trim any extra spaces
 		noteTitle = noteTitle.trim();
 		// Rename the note file with the new title
-		this.app.fileManager.renameFile(note, noteTitle + '.md');
+		this.app.fileManager.renameFile(note, join(dir, noteTitle + '.md'))
 	  }
 	}
   
