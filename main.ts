@@ -49,7 +49,6 @@ function addTagsEmojiToTitle(file: TFile) {
 	}
 }
 
-
 function addEmojisToAllNotes() {
 	// Get all the markdown files in the vault
 	const files = this.app.vault.getMarkdownFiles();
@@ -93,7 +92,6 @@ function removeTagsEmojiFromTitle(note: TFile) {
 	}
 }
 
-
 function removeEmojisFromAllNotes() {
 	// Get all the markdown files in the vault
 	const files = this.app.vault.getMarkdownFiles();
@@ -113,12 +111,6 @@ export default class EmoTagsTitler extends Plugin {
 			this.app.metadataCache.on('changed', addTagsEmojiToTitle.bind(this))
 		);
 
-		// Wait until the metadata cache is resolved, add a tags to all notes
-		// await this.app.metadataCache.on('resolved', () => {
-		// 	// Call the addEmojisToAllNotes function
-		// 	addEmojisToAllNotes();
-		// });
-
 		// Add a command to the plugin
 		this.addCommand({
 			id: 'add-emojis-to-all-notes',
@@ -129,7 +121,6 @@ export default class EmoTagsTitler extends Plugin {
 			},
 		});
 
-
 		this.addCommand({
 			id: 'remove-emojis-from-all-notes',
 			name: 'Remove emojis from the titles of all notes',
@@ -139,7 +130,6 @@ export default class EmoTagsTitler extends Plugin {
 			},
 		});
 	}
-
 
 }
 
