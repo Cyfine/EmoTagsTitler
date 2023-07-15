@@ -1,15 +1,5 @@
-import {App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile} from 'obsidian';
+import {Plugin, TFile} from 'obsidian';
 import {join} from 'path';
-
-// Remember to rename these classes and interfaces!
-
-interface MyPluginSettings {
-	mySetting: string;
-}
-
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
-}
 
 
 const emojiDetectRegex = /(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/gu
@@ -137,13 +127,6 @@ export default class EmoTagsTitler extends Plugin {
 				// Call the addEmojisToAllNotes function
 				addEmojisToAllNotes();
 			},
-			// Optional hotkeys for the command
-			hotkeys: [
-				{
-					modifiers: ['Mod', 'Shift'],
-					key: 'E',
-				},
-			],
 		});
 
 
@@ -153,61 +136,10 @@ export default class EmoTagsTitler extends Plugin {
 			callback: () => {
 				// Call the removeEmojisFromAllNotes function
 				removeEmojisFromAllNotes();
-			},
-			hotkeys: [
-				{
-					modifiers: ['Mod', 'Shift'],
-					key: 'R',
-				},
-			],
+			},rr
 		});
 	}
 
 
 }
 
-
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
-
-	onOpen() {
-		const {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
-
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	plugin: EmoTagsTitler;
-
-	constructor(app: App, plugin: EmoTagsTitler) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const {containerEl} = this;
-
-		containerEl.empty();
-
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
-
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					console.log('Secret: ' + value);
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
-	}
-}

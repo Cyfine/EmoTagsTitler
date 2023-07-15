@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
+	"id": "emoji-tags-titler",
 	"name": "EmoTagsTitler",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
 	"description": "Add the emojis contained in the tags to the beginning of the note title.",
 	"author": "Cyfine",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"authorUrl": "https://github.com/Cyfine",
+	"fundingUrl": "https://www.buymeacoffee.com/cyfine",
 	"isDesktopOnly": false
 }
