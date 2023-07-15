@@ -8,7 +8,7 @@ If you find this helpful, please buy me a coffee.
 
 
 ## Add/Remove Emoji in your note tags to the title 
-![add/remove](add:remove.gif)
+![add/remove](addoremove.gif)
 
 ## Command Palette
 ### Add Emoji to all notes that have emoji tags 
