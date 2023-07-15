@@ -136,7 +136,7 @@ export default class EmoTagsTitler extends Plugin {
 			callback: () => {
 				// Call the removeEmojisFromAllNotes function
 				removeEmojisFromAllNotes();
-			},rr
+			},
 		});
 	}
 
