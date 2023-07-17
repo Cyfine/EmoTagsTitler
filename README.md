@@ -2,6 +2,9 @@
 Add emoji to the title of notes with emoji tags. 
 If you find this helpful, please buy me a coffee.
 
+**Dropbox does not like emojis, any files with emojis in 
+its name won't be synced.** 
+
 <a href="https://www.buymeacoffee.com/cyfine">
 <img src="bmc-button.png" alt="Image description" width="200">
 </a>
